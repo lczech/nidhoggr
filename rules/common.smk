@@ -39,7 +39,7 @@ wildcard_constraints:
 
 # Some helpful messages
 logger.info("===========================================================================")
-logger.info("    nachash - snakemake pipeline to run phylogenetic tree inferences")
+logger.info("    nidhoggr - snakemake pipeline to run phylogenetic tree inferences")
 logger.info("")
 logger.info("    Snakefile:          " + (workflow.snakefile))
 logger.info("    Base directory:     " + (workflow.basedir))
