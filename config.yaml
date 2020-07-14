@@ -18,6 +18,7 @@ settings:
   # Valid values: "mafft", "muscle"
   aligner:
     - "mafft"
+    - "muscle"
 
 # =================================================================================================
 #     Tool Parameters
@@ -45,8 +46,20 @@ params:
   # ----------------------------------------------------------------------
 
   pargenes:
-    command: "python /home/lczech/GitHub/ParGenes/pargenes/pargenes.py"
+    # Set the command to run ParGenes, including the python command to execute.
+    command: "python3 /home/lczech/GitHub/ParGenes/pargenes/pargenes.py"
     threads: 6
+
+    # Other options to run ParGenes with.
     extra: "--use-modeltest"
     parsimony_starting_trees: 10
     random_starting_trees: 10
+    bs_trees: 100
+
+  # ----------------------------------------------------------------------
+  #     RAxML-ng
+  # ----------------------------------------------------------------------
+
+  raxmlng:
+    # Set the command to run RAxML-ng. Can re-use the binary from ParGenes, but does not have to.
+    command: "/home/lczech/GitHub/ParGenes/raxml-ng/bin/raxml-ng"

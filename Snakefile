@@ -8,8 +8,21 @@ include: "rules/common.smk"
 # which are then created by applying snakemake rules.
 rule all:
     input:
+        # Best ML tree
         expand(
             "trees/pargenes/{aligner}/{sample}-best.newick",
+            aligner=config["settings"]["aligner"],
+            sample=sample_names
+        ),
+
+        # Consensus trees from best tree set
+        expand(
+            "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMR",
+            aligner=config["settings"]["aligner"],
+            sample=sample_names
+        ),
+        expand(
+            "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMRE",
             aligner=config["settings"]["aligner"],
             sample=sample_names
         )
