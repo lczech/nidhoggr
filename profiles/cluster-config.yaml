@@ -1,0 +1,14 @@
+__default__:
+  account: lczech # Your hpc account
+  mail-user: lczech@carnegiescience.edu # Your email (optional)
+  partition: SHARED # The partition you use
+  time: 120 # Default time (minutes). A time limit of zero requests that no time limit be imposed
+  mem: 10G # Default memory. A memory size specification of zero grants the job access to all of the memory on each node.
+  cpus-per-task: 1
+  nodes: 1
+  ntasks: 1
+
+treesearch_pargenes:
+  mem: 50G
+  time: "10:00:00"
+  cpus-per-task: 32
