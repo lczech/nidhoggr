@@ -9,6 +9,7 @@ rule treesearch_pargenes:
         best_tree="trees/pargenes/{aligner}/{sample}-best.newick",
         ml_trees="trees/pargenes/{aligner}/{sample}-ml-trees.newick"
     params:
+        pargenes = config["params"]["pargenes"]["command"],
         extra=config["params"]["pargenes"]["extra"],
         parsimony_starting_trees=config["params"]["pargenes"]["parsimony_starting_trees"],
         random_starting_trees=config["params"]["pargenes"]["random_starting_trees"],
@@ -28,8 +29,7 @@ rule treesearch_pargenes:
         # and only copy the output files on success, we use a full shadow directory.
         "full"
     shell:
-        config["params"]["pargenes"]["command"] +
-        " --alignments-dir {params.indir} --output-dir {params.outdir} "
+        "{params.pargenes} --alignments-dir {params.indir} --output-dir {params.outdir} "
         "--parsimony-starting-trees {params.parsimony_starting_trees} "
         "--random-starting-trees {params.random_starting_trees} "
         "--bs-trees {params.bs_trees} "
@@ -50,11 +50,12 @@ rule treesearch_consensus:
     output:
         mr  = "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMR",
         mre = "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMRE"
+    params:
+        raxml = config["params"]["raxmlng"]["command"],
+        prefix = "trees/pargenes/{aligner}/{sample}-ml-trees"
     log:
         mr  = "logs/raxmlng-consensus/{aligner}/{sample}-mr.log",
         mre = "logs/raxmlng-consensus/{aligner}/{sample}-mre.log"
     shell:
-        config["params"]["raxmlng"]["command"] +
-        " --consense MR  --tree {input} --prefix trees/pargenes/{wildcards.aligner}/{wildcards.sample}-ml-trees > {log.mr}  2>&1 "
-        "&& " + config["params"]["raxmlng"]["command"] +
-        " --consense MRE --tree {input} --prefix trees/pargenes/{wildcards.aligner}/{wildcards.sample}-ml-trees > {log.mre} 2>&1 "
+        "{params.raxml} --consense MR  --tree {input} --prefix {params.prefix} > {log.mr}  2>&1 && "
+        "{params.raxml} --consense MRE --tree {input} --prefix {params.prefix} > {log.mre} 2>&1 "
