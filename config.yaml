@@ -14,6 +14,10 @@ data:
 
 settings:
 
+  # If set to True, the files in the above samples table are assumed to already be aligned,
+  # and the below list of alignment tools is not used.
+  skip_alignment: False
+
   # Select the tool(s) used for sequence alignment.
   # Valid values: "mafft", "muscle"
   aligner:
