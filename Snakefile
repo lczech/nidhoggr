@@ -24,7 +24,12 @@ rule all:
         ),
         # Best ML tree with support values
         expand(
-            "trees/pargenes/{aligner}/{sample}-best.support.newick",
+            "trees/pargenes/{aligner}/{sample}.bootstrap.newick",
+            aligner=aligner_list,
+            sample=sample_names
+        ),
+        expand(
+            "trees/pargenes/{aligner}/{sample}.transfer-bootstrap.newick",
             aligner=aligner_list,
             sample=sample_names
         ),
