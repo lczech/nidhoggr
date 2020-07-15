@@ -7,6 +7,7 @@ rule treesearch_pargenes:
         "aligned/{aligner}/{sample}/sample.fasta"
     output:
         best_tree="trees/pargenes/{aligner}/{sample}-best.newick",
+        support_tree="trees/pargenes/{aligner}/{sample}-best.support.newick"
         ml_trees="trees/pargenes/{aligner}/{sample}-ml-trees.newick"
     params:
         pargenes = config["params"]["pargenes"]["command"],
@@ -39,6 +40,7 @@ rule treesearch_pargenes:
         # Copy the original files produced by ParGenes to keep our stuff clean.
         # As we work in a shadow directory, all other files are deleted after this.
         "&& cp {params.outdir}/mlsearch_run/results/sample_fasta/sample_fasta.raxml.bestTree {output.best_tree} "
+        "&& cp {params.outdir}/mlsearch_run/results/sample_fasta/sample_fasta.raxml.support {output.support_tree} "
         "&& cp {params.outdir}/mlsearch_run/results/sample_fasta/sorted_ml_trees.newick {output.ml_trees} "
 
 # =================================================================================================

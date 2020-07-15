@@ -22,6 +22,12 @@ rule all:
             aligner=aligner_list,
             sample=sample_names
         ),
+        # Best ML tree with support values
+        expand(
+            "trees/pargenes/{aligner}/{sample}-best.support.newick",
+            aligner=aligner_list,
+            sample=sample_names
+        ),
 
         # Consensus trees from best tree set
         expand(
