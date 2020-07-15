@@ -33,6 +33,7 @@ rule treesearch_pargenes:
         "--parsimony-starting-trees {params.parsimony_starting_trees} "
         "--random-starting-trees {params.random_starting_trees} "
         "--bs-trees {params.bs_trees} "
+        "--data-type {params.datatype} "
         "{params.extra} --cores {threads} --continue > {log} 2>&1 "
 
         # Copy the original files produced by ParGenes to keep our stuff clean.

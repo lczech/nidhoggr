@@ -59,6 +59,7 @@ params:
     parsimony_starting_trees: 10
     random_starting_trees: 10
     bs_trees: 100
+    datatype: "nt" # 'nt' for DNA, 'aa' for protein
 
   # ----------------------------------------------------------------------
   #     RAxML-ng
