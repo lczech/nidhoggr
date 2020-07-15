@@ -7,7 +7,7 @@ rule treesearch_pargenes:
         "aligned/{aligner}/{sample}/sample.fasta"
     output:
         best_tree="trees/pargenes/{aligner}/{sample}-best.newick",
-        support_tree="trees/pargenes/{aligner}/{sample}-best.support.newick"
+        support_tree="trees/pargenes/{aligner}/{sample}-best.support.newick",
         ml_trees="trees/pargenes/{aligner}/{sample}-ml-trees.newick"
     params:
         pargenes = config["params"]["pargenes"]["command"],
