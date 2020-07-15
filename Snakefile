@@ -16,9 +16,14 @@ aligner_list = ( "apriori" if config["settings"]["skip_alignment"] else config["
 # which are then created by applying snakemake rules.
 rule all:
     input:
-        # Best ML tree
+        # Best ML tree and associated model
         expand(
             "trees/pargenes/{aligner}/{sample}-best.newick",
+            aligner=aligner_list,
+            sample=sample_names
+        ),
+        expand(
+            "trees/pargenes/{aligner}/{sample}-best.model",
             aligner=aligner_list,
             sample=sample_names
         ),
