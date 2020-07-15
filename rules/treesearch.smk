@@ -15,6 +15,7 @@ rule treesearch_pargenes:
         parsimony_starting_trees=config["params"]["pargenes"]["parsimony_starting_trees"],
         random_starting_trees=config["params"]["pargenes"]["random_starting_trees"],
         bs_trees=config["params"]["pargenes"]["bs_trees"],
+        datatype=config["params"]["pargenes"]["datatype"],
 
         # Need to specify the directories for ParGenes instead of the files...
         indir=lambda wildcards: os.path.join("aligned", wildcards.aligner, wildcards.sample),
