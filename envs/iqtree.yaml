@@ -1,0 +1,7 @@
+# Used by rules in treesearch.smk
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - iqtree ==2.0.3

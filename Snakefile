@@ -49,6 +49,13 @@ rule all:
             "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMRE",
             aligner=aligner_list,
             sample=sample_names
+        ),
+
+        # iqtree stats summary
+        expand(
+            "post/iqtree_stats_test/pargenes/{aligner}/{sample}/summary.txt",
+            aligner=aligner_list,
+            sample=sample_names
         )
 
 # The main `all` rule is local. It does not do anything anyway,
@@ -61,3 +68,4 @@ localrules: all
 
 include: "rules/align.smk"
 include: "rules/treesearch.smk"
+include: "rules/postanalysis.smk"
