@@ -4,28 +4,28 @@
 
 rule treesearch_pargenes:
     input:
-        "aligned/{aligner}/{sample}/sample.fasta"
+        "result/{sample}/{aligner}/msa/aligned.fasta"
     output:
-        best_tree="trees/pargenes/{aligner}/{sample}-best.newick",
-        best_model="trees/pargenes/{aligner}/{sample}-best.model",
-        support_tree="trees/pargenes/{aligner}/{sample}.bootstrap.newick",
-        tbe_support_tree="trees/pargenes/{aligner}/{sample}.transfer-bootstrap.newick",
-        ml_trees="trees/pargenes/{aligner}/{sample}-ml-trees.newick"
+        best_tree       = "result/{sample}/{aligner}/pargenes/tree/best.newick",
+        best_model      = "result/{sample}/{aligner}/pargenes/tree/best.model",
+        support_tree    = "result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
+        tbe_support_tree= "result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
+        ml_trees        = "result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
     params:
-        pargenes = config["params"]["pargenes"]["command"],
-        extra=config["params"]["pargenes"]["extra"],
-        parsimony_starting_trees=config["params"]["pargenes"]["parsimony_starting_trees"],
-        random_starting_trees=config["params"]["pargenes"]["random_starting_trees"],
-        bs_trees=config["params"]["pargenes"]["bs_trees"],
-        datatype=config["params"]["pargenes"]["datatype"],
+        pargenes                = config["params"]["pargenes"]["command"],
+        extra                   = config["params"]["pargenes"]["extra"],
+        parsimony_starting_trees= config["params"]["pargenes"]["parsimony_starting_trees"],
+        random_starting_trees   = config["params"]["pargenes"]["random_starting_trees"],
+        bs_trees                = config["params"]["pargenes"]["bs_trees"],
+        datatype                = config["params"]["pargenes"]["datatype"],
 
         # Need to specify the directories for ParGenes instead of the files...
-        indir=lambda wildcards: os.path.join("aligned", wildcards.aligner, wildcards.sample),
-        outdir=lambda wildcards: os.path.join("trees/pargenes", wildcards.aligner, wildcards.sample)
+        indir   = lambda wildcards: os.path.join("result", wildcards.sample, wildcards.aligner, "msa"),
+        outdir  = lambda wildcards: os.path.join("result", wildcards.sample, wildcards.aligner, "pargenes/pargenes_run")
     threads:
         config["params"]["pargenes"]["threads"]
     log:
-        "logs/pargenes/{aligner}/{sample}.log"
+        "result/{sample}/{aligner}/pargenes/tree/pargenes.log"
     benchmark:
         "benchmarks/pargenes/{aligner}/{sample}.bench.log"
     shadow:
@@ -42,11 +42,11 @@ rule treesearch_pargenes:
 
         # Copy the original files produced by ParGenes to keep our stuff clean.
         # As we work in a shadow directory, all other files are deleted after this.
-        "&& cp {params.outdir}/mlsearch_run/results/sample_fasta/sample_fasta.raxml.bestTree {output.best_tree} "
-        "&& cp {params.outdir}/mlsearch_run/results/sample_fasta/sample_fasta.raxml.bestModel {output.best_model} "
-        "&& cp {params.outdir}/supports_run/results/sample_fasta.support.raxml.support {output.support_tree} "
-        "&& cp {params.outdir}/supports_run/results/sample_fasta.support.tbe.raxml.support {output.tbe_support_tree} "
-        "&& cp {params.outdir}/mlsearch_run/results/sample_fasta/sorted_ml_trees.newick {output.ml_trees} "
+        "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/aligned_fasta.raxml.bestTree {output.best_tree} "
+        "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/aligned_fasta.raxml.bestModel {output.best_model} "
+        "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.raxml.support {output.support_tree} "
+        "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.tbe.raxml.support {output.tbe_support_tree} "
+        "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/sorted_ml_trees.newick {output.ml_trees} "
 
 # =================================================================================================
 #     Consensus Tree with RAxML-ng
@@ -54,16 +54,18 @@ rule treesearch_pargenes:
 
 rule treesearch_consensus:
     input:
-        "trees/pargenes/{aligner}/{sample}-ml-trees.newick"
+        "result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
     output:
-        mr  = "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMR",
-        mre = "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMRE"
+        mr  = "result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
+        mre = "result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick"
     params:
-        raxml = config["params"]["raxmlng"]["command"],
-        prefix = "trees/pargenes/{aligner}/{sample}-ml-trees"
+        raxml   = config["params"]["raxmlng"]["command"],
+        prefix  = "result/{sample}/{aligner}/pargenes/tree/ml_trees"
     log:
-        mr  = "logs/raxmlng-consensus/{aligner}/{sample}-mr.log",
-        mre = "logs/raxmlng-consensus/{aligner}/{sample}-mre.log"
+        mr  = "result/{sample}/{aligner}/pargenes/tree/mr.log",
+        mre = "result/{sample}/{aligner}/pargenes/tree/mre.log"
     shell:
-        "{params.raxml} --consense MR  --tree {input} --prefix {params.prefix} > {log.mr}  2>&1 && "
-        "{params.raxml} --consense MRE --tree {input} --prefix {params.prefix} > {log.mre} 2>&1 "
+        "{params.raxml} --consense MR  --tree {input} --prefix {params.prefix} --redo > {log.mr}  2>&1 && "
+        "mv {params.prefix}.raxml.consensusTreeMR {output.mr} && "
+        "{params.raxml} --consense MRE --tree {input} --prefix {params.prefix} --redo > {log.mre} 2>&1 && "
+        "mv {params.prefix}.raxml.consensusTreeMRE {output.mre}"

@@ -4,18 +4,18 @@
 
 rule iqtree_stats_test:
     input:
-        msa="aligned/{aligner}/{sample}/sample.fasta",
-        best_tree="trees/pargenes/{aligner}/{sample}-best.newick",
-        best_model="trees/pargenes/{aligner}/{sample}-best.model",
-        ml_trees="trees/pargenes/{aligner}/{sample}-ml-trees.newick"
+        msa         = "result/{sample}/{aligner}/msa/aligned.fasta",
+        best_tree   = "result/{sample}/{aligner}/pargenes/tree/best.newick",
+        best_model  = "result/{sample}/{aligner}/pargenes/tree/best.model",
+        ml_trees    = "result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
     output:
-        "post/iqtree_stats_test/pargenes/{aligner}/{sample}/stats.iqtree"
+        "result/{sample}/{aligner}/pargenes/post/stats.iqtree"
     threads:
         config["settings"]["threads"]
     params:
-        workdir="post/iqtree_stats_test/pargenes/{aligner}/{sample}/"
+        workdir="result/{sample}/{aligner}/pargenes/post"
     log:
-        "logs/iqtree_stats_test/{aligner}/{sample}.log"
+        "result/{sample}/{aligner}/pargenes/post/iqtree.log"
     run:
         import re
         modelstring=""
@@ -33,10 +33,10 @@ rule iqtree_stats_test:
 
 rule summarize_iqtree_stats_test:
     input:
-        iqtree_stats="post/iqtree_stats_test/pargenes/{aligner}/{sample}/stats.iqtree",
-        ml_trees="trees/pargenes/{aligner}/{sample}-ml-trees.newick"
+        iqtree_stats    = "result/{sample}/{aligner}/pargenes/post/stats.iqtree",
+        ml_trees        = "result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
     output:
-        summary="post/iqtree_stats_test/pargenes/{aligner}/{sample}/summary.txt",
-        plausible_trees="post/iqtree_stats_test/pargenes/{aligner}/{sample}/plausible_trees.newick"
+        summary         = "result/{sample}/{aligner}/pargenes/post/significance.txt",
+        plausible_trees = "result/{sample}/{aligner}/pargenes/post/plausible_trees.newick"
     script:
         "scripts/iqtree_test_summarize.py"

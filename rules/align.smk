@@ -6,7 +6,7 @@ rule align_apriori:
     input:
         get_fasta
     output:
-        "aligned/apriori/{sample}/sample.fasta"
+        "result/{sample}/apriori/msa/aligned.fasta"
     shell:
         "cp {input} {output}"
 
@@ -20,13 +20,13 @@ rule align_mafft:
         # No need to pass the sample name - this is handed over to the function by snakemake magic.
         get_fasta
     output:
-        "aligned/mafft/{sample}/sample.fasta"
+        "result/{sample}/mafft/msa/aligned.fasta"
     params:
         extra=config["params"]["mafft"]["extra"]
     threads:
         config["params"]["mafft"]["threads"]
     log:
-        "logs/mafft/{sample}.log"
+        "result/{sample}/mafft/alignment.log"
     benchmark:
         "benchmarks/mafft/{sample}.bench.log"
     conda:
@@ -44,11 +44,11 @@ rule align_muscle:
         # No need to pass the sample name - this is handed over to the function by snakemake magic.
         get_fasta
     output:
-        "aligned/muscle/{sample}/sample.fasta"
+        "result/{sample}/muscle/msa/aligned.fasta"
     params:
         extra=config["params"]["muscle"]["extra"]
     log:
-        "logs/muscle/{sample}.log"
+        "result/{sample}/muscle/alignment.log"
     benchmark:
         "benchmarks/muscle/{sample}.bench.log"
     conda:

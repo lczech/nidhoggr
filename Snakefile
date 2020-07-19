@@ -18,45 +18,46 @@ rule all:
     input:
         # Best ML tree and associated model
         expand(
-            "trees/pargenes/{aligner}/{sample}-best.newick",
+            "result/{sample}/{aligner}/pargenes/tree/best.newick",
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "trees/pargenes/{aligner}/{sample}-best.model",
+            "result/{sample}/{aligner}/pargenes/tree/best.model",
             aligner=aligner_list,
             sample=sample_names
         ),
         # Best ML tree with support values
         expand(
-            "trees/pargenes/{aligner}/{sample}.bootstrap.newick",
+            "result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "trees/pargenes/{aligner}/{sample}.transfer-bootstrap.newick",
+            "result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
             aligner=aligner_list,
             sample=sample_names
         ),
 
         # Consensus trees from best tree set
         expand(
-            "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMR",
+            "result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "trees/pargenes/{aligner}/{sample}-ml-trees.raxml.consensusTreeMRE",
+            "result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick",
             aligner=aligner_list,
             sample=sample_names
         ),
 
         # iqtree stats summary
         expand(
-            "post/iqtree_stats_test/pargenes/{aligner}/{sample}/summary.txt",
+            "result/{sample}/{aligner}/pargenes/post/significance.txt",
             aligner=aligner_list,
             sample=sample_names
         )
+
 
 # The main `all` rule is local. It does not do anything anyway,
 # except requesting the other rules to run.
