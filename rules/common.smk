@@ -33,6 +33,9 @@ sample_names=list(set(samples.index.get_level_values("sample")))
 wildcard_constraints:
     sample="|".join(sample_names)
 
+# output prefix
+outdir=config["settings"]["outdir"]
+
 # =================================================================================================
 #     Pipeline User Output
 # =================================================================================================

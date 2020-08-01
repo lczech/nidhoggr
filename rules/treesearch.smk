@@ -4,13 +4,13 @@
 
 rule treesearch_pargenes:
     input:
-        "result/{sample}/{aligner}/msa/aligned.fasta"
+        "{outdir}/result/{sample}/{aligner}/msa/aligned.fasta"
     output:
-        best_tree       = "result/{sample}/{aligner}/pargenes/tree/best.newick",
-        best_model      = "result/{sample}/{aligner}/pargenes/tree/best.model",
-        support_tree    = "result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
-        tbe_support_tree= "result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
-        ml_trees        = "result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
+        best_tree       = "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.newick",
+        best_model      = "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.model",
+        support_tree    = "{outdir}/result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
+        tbe_support_tree= "{outdir}/result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
+        ml_trees        = "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
     params:
         pargenes                = config["params"]["pargenes"]["command"],
         extra                   = config["params"]["pargenes"]["extra"],
@@ -20,18 +20,18 @@ rule treesearch_pargenes:
         datatype                = config["params"]["pargenes"]["datatype"],
 
         # Need to specify the directories for ParGenes instead of the files...
-        indir   = lambda wildcards: os.path.join("result", wildcards.sample, wildcards.aligner, "msa"),
-        outdir  = lambda wildcards: os.path.join("result", wildcards.sample, wildcards.aligner, "pargenes/pargenes_run")
+        indir   = lambda wildcards: os.path.join(wildcards.outdir, "result", wildcards.sample, wildcards.aligner, "msa"),
+        outdir  = lambda wildcards: os.path.join(wildcards.outdir, "result", wildcards.sample, wildcards.aligner, "pargenes/pargenes_run")
     threads:
         config["params"]["pargenes"]["threads"]
     log:
-        "result/{sample}/{aligner}/pargenes/tree/pargenes.log"
+        "{outdir}/result/{sample}/{aligner}/pargenes/tree/pargenes.log"
     benchmark:
-        "benchmarks/pargenes/{aligner}/{sample}.bench.log"
-    shadow:
-        # ParGenes fails if the output dir already exists. To be sure to start from scratch,
-        # and only copy the output files on success, we use a full shadow directory.
-        "full"
+        "{outdir}/benchmarks/pargenes/{aligner}/{sample}.bench.log"
+    # shadow:
+    #     # ParGenes fails if the output dir already exists. To be sure to start from scratch,
+    #     # and only copy the output files on success, we use a full shadow directory.
+    #     "full"
     shell:
         "{params.pargenes} --alignments-dir {params.indir} --output-dir {params.outdir} "
         "--parsimony-starting-trees {params.parsimony_starting_trees} "
@@ -54,16 +54,16 @@ rule treesearch_pargenes:
 
 rule treesearch_consensus:
     input:
-        "result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
+        "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
     output:
-        mr  = "result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
-        mre = "result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick"
+        mr  = "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
+        mre = "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick"
     params:
         raxml   = config["params"]["raxmlng"]["command"],
-        prefix  = "result/{sample}/{aligner}/pargenes/tree/ml_trees"
+        prefix  = "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees"
     log:
-        mr  = "result/{sample}/{aligner}/pargenes/tree/mr.log",
-        mre = "result/{sample}/{aligner}/pargenes/tree/mre.log"
+        mr  = "{outdir}/result/{sample}/{aligner}/pargenes/tree/mr.log",
+        mre = "{outdir}/result/{sample}/{aligner}/pargenes/tree/mre.log"
     shell:
         "{params.raxml} --consense MR  --tree {input} --prefix {params.prefix} --redo > {log.mr}  2>&1 && "
         "mv {params.prefix}.raxml.consensusTreeMR {output.mr} && "

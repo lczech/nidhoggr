@@ -18,35 +18,41 @@ rule all:
     input:
         # Best ML tree and associated model
         expand(
-            "result/{sample}/{aligner}/pargenes/tree/best.newick",
+            "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.newick",
+            outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "result/{sample}/{aligner}/pargenes/tree/best.model",
+            "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.model",
+            outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         # Best ML tree with support values
         expand(
-            "result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
+            "{outdir}/result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
+            outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
+            "{outdir}/result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
+            outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
 
         # Consensus trees from best tree set
         expand(
-            "result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
+            "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
+            outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick",
+            "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick",
+            outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
