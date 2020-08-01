@@ -62,7 +62,7 @@ valid_datatypes="aa,nt"
 
 # prepare samples.tsv for re-writing
 SAMPLES=${BASE}/data/samples.tsv
-head -n 1 ${SAMPLES} > tmp && mv tmp ${SAMPLES}
+head -n 1 ${SAMPLES} > tmp_samples.tsv && mv tmp_samples.tsv ${SAMPLES}
 
 # copy fastas and update the samples.tsv
 for fasta in $@ ;
