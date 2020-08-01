@@ -12,12 +12,13 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
     ./miniconda.sh -b &&\
     /root/miniconda3/condabin/conda init &&\
     rm -f miniconda.sh 
+ENV PATH="/root/miniconda3/bin:${PATH}"
 
-RUN /root/miniconda3/condabin/conda install -y -c conda-forge -c bioconda snakemake
+RUN conda install -y -c conda-forge -c bioconda snakemake
 
-RUN git clone --recursive https://github.com/lczech/nidhoggr.git
+# RUN git clone --recursive https://github.com/lczech/nidhoggr.git
 
 # when testing, this obviates the need to commit/pull
-# COPY . /nidhoggr
+COPY . /nidhoggr
 
 ENTRYPOINT ["/nidhoggr/search.sh"]
