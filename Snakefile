@@ -52,23 +52,23 @@ rule all:
         ),
 
         # iqtree stats summary
-        expand(
-            "result/{sample}/{aligner}/pargenes/post/significance.txt",
-            aligner=aligner_list,
-            sample=sample_names
-        ),
+        # expand(
+        #     "result/{sample}/{aligner}/pargenes/post/significance.txt",
+        #     aligner=aligner_list,
+        #     sample=sample_names
+        # ),
 
-        # consensus trees based on plausible tree set
-        expand(
-            "result/{sample}/{aligner}/pargenes/post/plausible.consensusTreeMR.newick",
-            aligner=aligner_list,
-            sample=sample_names
-        ),
-        expand(
-            "result/{sample}/{aligner}/pargenes/post/plausible.consensusTreeMRE.newick",
-            aligner=aligner_list,
-            sample=sample_names
-        )
+        # # consensus trees based on plausible tree set
+        # expand(
+        #     "result/{sample}/{aligner}/pargenes/post/plausible.consensusTreeMR.newick",
+        #     aligner=aligner_list,
+        #     sample=sample_names
+        # ),
+        # expand(
+        #     "result/{sample}/{aligner}/pargenes/post/plausible.consensusTreeMRE.newick",
+        #     aligner=aligner_list,
+        #     sample=sample_names
+        # )
 
 # The main `all` rule is local. It does not do anything anyway,
 # except requesting the other rules to run.
