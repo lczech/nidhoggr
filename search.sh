@@ -177,4 +177,3 @@ params:
 cd ${BASE}
 snakemake --use-conda --cores ${threads} --configfile ${BASE}/pasta.yaml
 
-[[ ! -z $prefix ]] && cp -R result/ ${prefix}result
