@@ -28,10 +28,6 @@ rule treesearch_pargenes:
         "{outdir}/result/{sample}/{aligner}/pargenes/tree/pargenes.log"
     benchmark:
         "{outdir}/benchmarks/pargenes/{aligner}/{sample}.bench.log"
-    # shadow:
-    #     # ParGenes fails if the output dir already exists. To be sure to start from scratch,
-    #     # and only copy the output files on success, we use a full shadow directory.
-    #     "full"
     shell:
         "{params.pargenes} --alignments-dir {params.indir} --output-dir {params.outdir} "
         "--parsimony-starting-trees {params.parsimony_starting_trees} "
@@ -47,6 +43,8 @@ rule treesearch_pargenes:
         "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.raxml.support {output.support_tree} "
         "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.tbe.raxml.support {output.tbe_support_tree} "
         "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/sorted_ml_trees.newick {output.ml_trees} "
+        # finally delete the pargenes run dir
+        "&& rm -rf {params.outdir} "
 
 # =================================================================================================
 #     Consensus Tree with RAxML-ng
