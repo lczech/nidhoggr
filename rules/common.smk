@@ -34,7 +34,7 @@ wildcard_constraints:
     sample="|".join(sample_names)
 
 # output prefix
-outdir=config["settings"]["outdir"]
+outdir=config["settings"]["outdir"].rstrip("/")
 
 # =================================================================================================
 #     Pipeline User Output
