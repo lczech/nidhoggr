@@ -10,7 +10,8 @@ rule treesearch_pargenes:
         best_model      = "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.model",
         support_tree    = "{outdir}/result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
         tbe_support_tree= "{outdir}/result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
-        ml_trees        = "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
+        ml_trees        = "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees.newick",
+        bs_trees        = "{outdir}/result/{sample}/{aligner}/pargenes/tree/bs_trees.newick"
     params:
         pargenes                = config["params"]["pargenes"]["command"],
         extra                   = config["params"]["pargenes"]["extra"],
@@ -43,6 +44,7 @@ rule treesearch_pargenes:
         "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.raxml.support {output.support_tree} "
         "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.tbe.raxml.support {output.tbe_support_tree} "
         "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/sorted_ml_trees.newick {output.ml_trees} "
+        "&& cp {params.outdir}/concatenated_bootstraps/aligned_fasta.bs > {output.bs_trees} "
         # finally delete the pargenes run dir
         "&& rm -rf {params.outdir} "
 
