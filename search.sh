@@ -6,7 +6,7 @@ BASE=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 OPTIND=1
 
 verbose=0
-threads=$(nproc)
+threads=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
 do_align=0
 datatype="nt"
 
