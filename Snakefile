@@ -18,26 +18,20 @@ rule all:
     input:
         # Best ML tree and associated model
         expand(
-            "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.newick",
+            "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/best.newick",
             outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.model",
+            "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/best.model",
             outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         # Best ML tree with support values
         expand(
-            "{outdir}/result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
-            outdir=outdir,
-            aligner=aligner_list,
-            sample=sample_names
-        ),
-        expand(
-            "{outdir}/result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
+            "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/bootstrap.newick",
             outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
@@ -45,13 +39,13 @@ rule all:
 
         # Consensus trees from best tree set
         expand(
-            "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
+            "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/consensusTreeMR.newick",
             outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
         ),
         expand(
-            "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick",
+            "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/consensusTreeMRE.newick",
             outdir=outdir,
             aligner=aligner_list,
             sample=sample_names
@@ -59,19 +53,19 @@ rule all:
 
         # iqtree stats summary
         # expand(
-        #     "result/{sample}/{aligner}/pargenes/post/significance.txt",
+        #     "result/{sample}/{aligner}/raxml-ng/post/significance.txt",
         #     aligner=aligner_list,
         #     sample=sample_names
         # ),
 
         # # consensus trees based on plausible tree set
         # expand(
-        #     "result/{sample}/{aligner}/pargenes/post/plausible.consensusTreeMR.newick",
+        #     "result/{sample}/{aligner}/raxml-ng/post/plausible.consensusTreeMR.newick",
         #     aligner=aligner_list,
         #     sample=sample_names
         # ),
         # expand(
-        #     "result/{sample}/{aligner}/pargenes/post/plausible.consensusTreeMRE.newick",
+        #     "result/{sample}/{aligner}/raxml-ng/post/plausible.consensusTreeMRE.newick",
         #     aligner=aligner_list,
         #     sample=sample_names
         # )
@@ -84,6 +78,7 @@ localrules: all
 #     Rule Modules
 # =================================================================================================
 
+include: "rules/download.smk"
 include: "rules/align.smk"
 include: "rules/treesearch.smk"
 include: "rules/postanalysis.smk"

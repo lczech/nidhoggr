@@ -1,52 +1,103 @@
 # =================================================================================================
-#     Tree Search with ParGenes
+#     Helper Functions
+# =================================================================================================
+#
+# These functions are meant to be extended via wildcards if and when more tree inference tools are added
+#
+def bootstrap_params( wildcards ):
+    mode        = get_highest_override( "raxmlng", "bootstrap_metric" )
+    num_trees   = get_highest_override( "raxmlng", "bs_trees" )
+    auto_bs     = get_highest_override( "raxmlng", "auto_bootstrap" )
+
+    res         = " --bs-metric {}".format(mode) if mode else ""
+
+    if num_trees:
+        if auto_bs:
+            res = res + " --bs-trees autoMRE{{{}}}".format(num_trees)
+        else:
+            res = res + " --bs-trees {}".format(num_trees)
+
+    return res
+
+def model_params( wildcards ):
+    datatype    = config["settings"]["datatype"]
+    model       = get_highest_override( "raxmlng", "model" )
+
+    if model:
+        return model
+    elif datatype and datatype in ['nt','aa']:
+        return "GTR+G" if datatype == 'nt' else 'LG+G'
+    else:
+        util.fail("'datatype' field is required, and must be either 'nt' or 'aa'.")
+
+def starting_trees_params( wildcards ):
+    pars_trees = get_highest_override( "raxmlng", "parsimony_starting_trees")
+    rand_trees = get_highest_override( "raxmlng", "random_starting_trees")
+
+    if pars_trees or rand_trees:
+        trees = []
+        if pars_trees:
+            trees.append("pars{{{}}}".format(pars_trees))
+        if rand_trees:
+            trees.append("rand{{{}}}".format(rand_trees))
+        return " --tree " + ",".join(trees)
+    else:
+        # nothing specified: leave it up to the tool to decide
+        return ""
+
+def redo_params( attempt ):
+    print("Attempt: {}".format(attempt))
+    # attempt = int( attempt )
+    return " --redo" if attempt == 1 else ""
+
+# =================================================================================================
+#     Tree Search with RAxML-ng
 # =================================================================================================
 
-rule treesearch_pargenes:
+rule treesearch_raxmlng:
     input:
         "{outdir}/result/{sample}/{aligner}/msa/aligned.fasta"
-    output:
-        best_tree       = "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.newick",
-        best_model      = "{outdir}/result/{sample}/{aligner}/pargenes/tree/best.model",
-        support_tree    = "{outdir}/result/{sample}/{aligner}/pargenes/tree/bootstrap.newick",
-        tbe_support_tree= "{outdir}/result/{sample}/{aligner}/pargenes/tree/transfer_bootstrap.newick",
-        ml_trees        = "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees.newick",
-        bs_trees        = "{outdir}/result/{sample}/{aligner}/pargenes/tree/bs_trees.newick"
+    resources:
+        nr = lambda wildcards, attempt: attempt,
     params:
-        pargenes                = config["params"]["pargenes"]["command"],
-        extra                   = config["params"]["pargenes"]["extra"],
-        parsimony_starting_trees= config["params"]["pargenes"]["parsimony_starting_trees"],
-        random_starting_trees   = config["params"]["pargenes"]["random_starting_trees"],
-        bs_trees                = config["params"]["pargenes"]["bs_trees"],
-        datatype                = config["params"]["pargenes"]["datatype"],
-
-        # Need to specify the directories for ParGenes instead of the files...
-        indir   = lambda wildcards: os.path.join(wildcards.outdir, "result", wildcards.sample, wildcards.aligner, "msa"),
-        outdir  = lambda wildcards: os.path.join(wildcards.outdir, "result", wildcards.sample, wildcards.aligner, "pargenes/pargenes_run")
+        model           = model_params,
+        starting_trees  = starting_trees_params,
+        bootstrap       = bootstrap_params,
+        redo            = "",#redo_params( resources.nr ),
+        extra           = config["params"]["raxmlng"]["extra"],
+        prefix          = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/search"
     threads:
-        config["params"]["pargenes"]["threads"]
+        get_highest_override( "raxmlng", "threads" )
+    output:
+        folder          = directory( "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/" ),
+        best_tree       = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/best.newick",
+        best_model      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/best.model",
+        support_tree    = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/bootstrap.newick",
+        ml_trees        = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/ml_trees.newick",
+        bs_trees        = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/bs_trees.newick"
+        # checkpoint      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/"
     log:
-        "{outdir}/result/{sample}/{aligner}/pargenes/tree/pargenes.log"
+        "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/search.log"
     benchmark:
-        "{outdir}/benchmarks/pargenes/{aligner}/{sample}.bench.log"
+        "{outdir}/benchmarks/raxml-ng/{aligner}/{sample}.bench.log"
+    conda:
+        "../envs/raxml-ng.yaml"
     shell:
-        "{params.pargenes} --alignments-dir {params.indir} --output-dir {params.outdir} "
-        "--parsimony-starting-trees {params.parsimony_starting_trees} "
-        "--random-starting-trees {params.random_starting_trees} "
-        "--bs-trees {params.bs_trees} "
-        "--datatype {params.datatype} "
-        "{params.extra} --cores {threads} --continue > {log} 2>&1 "
+        "raxml-ng --all --msa {input} --prefix {params.prefix} --model {params.model}"
+        "{params.starting_trees}"
+        "{params.bootstrap}"
+        " --threads {threads}"
+        "{params.redo}"
+        "{params.extra}"
+        " > {log}  2>&1"
+        # symlink resulting files to be simpler to understand and conform with other methods
+        " && cd {output.folder}"
+        " && ln -s search.raxml.bestTree best.newick"
+        " && ln -s search.raxml.bestModel best.model"
+        " && ln -s search.raxml.support bootstrap.newick"
+        " && ln -s search.raxml.mlTrees ml_trees.newick"
+        " && ln -s search.raxml.bootstraps bs_trees.newick"
 
-        # Copy the original files produced by ParGenes to keep our stuff clean.
-        # As we work in a shadow directory, all other files are deleted after this.
-        "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/aligned_fasta.raxml.bestTree {output.best_tree} "
-        "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/aligned_fasta.raxml.bestModel {output.best_model} "
-        "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.raxml.support {output.support_tree} "
-        "&& cp {params.outdir}/supports_run/results/aligned_fasta.support.tbe.raxml.support {output.tbe_support_tree} "
-        "&& cp {params.outdir}/mlsearch_run/results/aligned_fasta/sorted_ml_trees.newick {output.ml_trees} "
-        "&& cp {params.outdir}/concatenated_bootstraps/aligned_fasta.bs > {output.bs_trees} "
-        # finally delete the pargenes run dir
-        "&& rm -rf {params.outdir} "
 
 # =================================================================================================
 #     Consensus Tree with RAxML-ng
@@ -54,18 +105,21 @@ rule treesearch_pargenes:
 
 rule treesearch_consensus:
     input:
-        "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees.newick"
+        "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/ml_trees.newick"
     output:
-        mr  = "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMR.newick",
-        mre = "{outdir}/result/{sample}/{aligner}/pargenes/tree/consensusTreeMRE.newick"
+        mr      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/consensusTreeMR.newick",
+        mre     = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/consensusTreeMRE.newick"
     params:
-        raxml   = config["params"]["raxmlng"]["command"],
-        prefix  = "{outdir}/result/{sample}/{aligner}/pargenes/tree/ml_trees"
+        prefix  = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/ml_trees"
+    threads:
+        get_highest_override( "raxmlng", "threads" )
     log:
-        mr  = "{outdir}/result/{sample}/{aligner}/pargenes/tree/mr.log",
-        mre = "{outdir}/result/{sample}/{aligner}/pargenes/tree/mre.log"
+        mr      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/mr.log",
+        mre     = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/mre.log"
+    conda:
+        "../envs/raxml-ng.yaml"
     shell:
-        "{params.raxml} --consense MR  --tree {input} --prefix {params.prefix} --redo > {log.mr}  2>&1 && "
+        "raxml-ng --consense MR  --tree {input} --prefix {params.prefix} --threads {threads} > {log.mr}  2>&1 && "
         "mv {params.prefix}.raxml.consensusTreeMR {output.mr} && "
-        "{params.raxml} --consense MRE --tree {input} --prefix {params.prefix} --redo > {log.mre} 2>&1 && "
+        "raxml-ng --consense MRE --tree {input} --prefix {params.prefix} --threads {threads} > {log.mre} 2>&1 && "
         "mv {params.prefix}.raxml.consensusTreeMRE {output.mre}"

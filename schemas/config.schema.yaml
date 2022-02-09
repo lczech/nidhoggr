@@ -1,0 +1,104 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+description: snakemake configuration file for nidhoggr
+
+type: object
+
+properties:
+  data:
+    type: object
+    properties:
+      samples:
+        type: string
+
+      accession_file_structure:
+        type: object
+        properties:
+          taxon_column:
+            type: string
+            default: "label"
+
+          accession_column:
+            type: string
+            default: "accession"
+    required:
+      - samples
+
+  settings:
+    type: object
+    properties:
+      skip_alignment:
+        type: bool
+        default: False
+
+      datatype:
+        type: string
+        default: "nt"
+
+      aligner:
+        type: array
+        items:
+          type: string
+          enum: ["mafft","muscle"]
+          default: "mafft"
+
+      threads:
+        type: integer
+        default: 4
+
+      outdir:
+        type: string
+        default: "test"
+
+    params:
+      type: object
+      properties:
+        mafft:
+          type: object
+          properties:
+            extra:
+              type: string
+              default: "--auto"
+            threads:
+              type: integer
+              default: 4
+        
+        muscle:
+          type: object
+          properties:
+            extra:
+              type: string
+              default: ""
+
+        pargenes:
+          type: object
+          properties:
+            command:
+              type: string
+              default: "python3 ~/ParGenes/pargenes/pargenes.py"
+            threads:
+              type: integer
+              default: 4
+            extra:
+              type: string
+              default: "--use-modeltest"
+            random_starting_trees:
+              type: integer
+              default: 10
+            bs_trees:
+              type: integer
+              default: 100
+
+        raxmlng:
+          type: object
+          properties:
+            command:
+              type: string
+              default: "~/ParGenes/raxml-ng/bin/raxml-ng"
+
+        iqtree:
+          type: object
+          properties:
+            extra:
+              type: string
+              default: ""

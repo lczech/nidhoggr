@@ -1,8 +1,10 @@
 from shutil import rmtree, copyfile, copytree
 import os
+from os.path import join, isfile
 import sys
 import stat
 import subprocess
+from pathlib import Path
 
 # =================================================================================================
 #     Error Handling
@@ -11,6 +13,9 @@ import subprocess
 def fail( msg ):
   print( "ERROR: " + msg )
   sys.exit(1)
+
+def warn( msg ):
+  print( "WARNING: " + msg )
 
 # =================================================================================================
 #     Input Validation
@@ -45,13 +50,64 @@ def parse_executable_path( executable_path ):
   return executable_path
 
 # =================================================================================================
-#     File System Manipulation
+#     File System Helpers
 # =================================================================================================
 
-def splitpath(path, maxdepth=20):
-  path = os.path.normpath(path) 
+def filename( path ):
+  return os.path.splitext( os.path.basename( path ) )[0]
+
+def extension( path ):
+  parts = os.path.splitext( path )
+  if( len(parts) == 1 ):
+    fail( "file '{}' does not appear to have an extension, which is required.".format(path) )
+  return parts[1]
+
+def splitpath( path, maxdepth=20 ):
+  path = os.path.normpath(path)
   ( head, tail ) = os.path.split(path)
   return splitpath(head, maxdepth - 1) + [ tail ] if maxdepth and head and head != path else [ head or tail ]
+
+def num_dirs( path ):
+  """Returns the number of directories in a path"""
+  return len( Path( os.path.dirname( path ) ).parts )
+
+
+def last_n_dirnames( path, n ):
+  path = os.path.normpath(path)
+  names = Path( os.path.dirname( path ) ).parts[ 1: ]
+  # don't try to return more than there are
+  n = min( n, len(names) )
+  # return the last n parts
+  return list( names[ -n: ] ) if n else []
+
+def ingest_paths( paths, extensions=None ):
+  """Takes a list of paths, validates them to make sure they exist, and if a path is a directory
+  globs all files in said directory that have the specified extension. If no specific extension
+  is provided, returns all files in that directory (non-recursively)
+  """
+  file_list = []
+  for path in paths:
+    if os.path.isfile( path ):
+      expect_file_exists( path )
+      if( extensions and not extension(path) in extensions ):
+        warn("file '{path}' does not have any of the expected file extensions: {extensions}")
+      if( not path in file_list ):
+        file_list.append( path )
+
+    elif os.path.isdir( path ):
+      expect_dir_exists( path )
+      files = [join(path, f) for f in os.listdir( path ) if isfile( join(path, f) )]
+      if( extensions ):
+        file_list.extend( [f for f in files if extension( f ) in extensions and not f in file_list] )
+      else:
+        file_list.extend( [f for f in files if not f in file_list] )
+
+  return file_list
+
+
+# =================================================================================================
+#     File System Manipulation
+# =================================================================================================
 
 def copy( src, dest ):
   copyfile( src, dest )
@@ -116,7 +172,8 @@ def find_string_between(input_str, marker1, marker2):
 #     System Functions
 # =================================================================================================
 
-def num_pyhsical_cores():
+# doesnt work on mac!
+def num_physical_cores():
   out = subprocess.check_output(['lscpu', '--parse=Core,Socket'], encoding = 'utf-8')
   out = out.split('\n')
   num_cores = len(
