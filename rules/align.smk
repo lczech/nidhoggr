@@ -8,7 +8,7 @@ rule align_apriori:
         # No need to pass the sample name - this is handed over to the function by snakemake magic.
         get_fasta
     output:
-        "{outdir}/result/{sample}/apriori/msa/aligned.fasta"
+        "{outdir}/result/{sample}/apriori/aligned.afa"
     shell:
         "cp {input} {output}"
 
@@ -22,7 +22,7 @@ rule align_mafft:
         # No need to pass the sample name - this is handed over to the function by snakemake magic.
         get_fasta
     output:
-        "{outdir}/result/{sample}/mafft/msa/aligned.fasta"
+        "{outdir}/result/{sample}/mafft/aligned.afa"
     params:
         extra=config["params"]["mafft"]["extra"]
     threads:
@@ -46,7 +46,7 @@ rule align_muscle:
         # No need to pass the sample name - this is handed over to the function by snakemake magic.
         get_fasta
     output:
-        "{outdir}/result/{sample}/muscle/msa/aligned.fasta"
+        "{outdir}/result/{sample}/muscle/aligned.afa"
     params:
         extra = config["params"]["muscle"]["extra"]
     log:

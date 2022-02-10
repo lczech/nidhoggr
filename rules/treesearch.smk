@@ -45,41 +45,31 @@ def starting_trees_params( wildcards ):
         # nothing specified: leave it up to the tool to decide
         return ""
 
-def redo_params( attempt ):
-    print("Attempt: {}".format(attempt))
-    # attempt = int( attempt )
-    return " --redo" if attempt == 1 else ""
-
 # =================================================================================================
 #     Tree Search with RAxML-ng
 # =================================================================================================
 
 rule treesearch_raxmlng:
     input:
-        "{outdir}/result/{sample}/{aligner}/msa/aligned.fasta"
-    resources:
-        nr = lambda wildcards, attempt: attempt,
+        "{outdir}/result/{sample}/{aligner}/{trimmer}/trimmed.afa"
     params:
         model           = model_params,
         starting_trees  = starting_trees_params,
         bootstrap       = bootstrap_params,
-        redo            = "",#redo_params( resources.nr ),
         extra           = config["params"]["raxmlng"]["extra"],
-        prefix          = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/search"
+        prefix          = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/search"
     threads:
         get_highest_override( "raxmlng", "threads" )
     output:
-        folder          = directory( "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/" ),
-        best_tree       = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/best.newick",
-        best_model      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/best.model",
-        support_tree    = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/bootstrap.newick",
-        ml_trees        = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/ml_trees.newick",
-        bs_trees        = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/bs_trees.newick"
-        # checkpoint      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/"
+        best_tree       = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/best.newick",
+        best_model      = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/best.model",
+        support_tree    = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/bootstrap.newick",
+        ml_trees        = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/ml_trees.newick",
+        bs_trees        = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/bs_trees.newick"
     log:
-        "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/search.log"
+        "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/search.log"
     benchmark:
-        "{outdir}/benchmarks/raxml-ng/{aligner}/{sample}.bench.log"
+        "{outdir}/benchmarks/raxml-ng/{aligner}/{trimmer}/{sample}.bench.log"
     conda:
         "../envs/raxml-ng.yaml"
     shell:
@@ -87,11 +77,10 @@ rule treesearch_raxmlng:
         "{params.starting_trees}"
         "{params.bootstrap}"
         " --threads {threads}"
-        "{params.redo}"
         "{params.extra}"
         " > {log}  2>&1"
         # symlink resulting files to be simpler to understand and conform with other methods
-        " && cd {output.folder}"
+        " && cd $(dirname {output})"
         " && ln -s search.raxml.bestTree best.newick"
         " && ln -s search.raxml.bestModel best.model"
         " && ln -s search.raxml.support bootstrap.newick"
@@ -105,17 +94,17 @@ rule treesearch_raxmlng:
 
 rule treesearch_consensus:
     input:
-        "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/ml_trees.newick"
+        "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/ml_trees.newick"
     output:
-        mr      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/consensusTreeMR.newick",
-        mre     = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/consensusTreeMRE.newick"
+        mr      = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/consensusTreeMR.newick",
+        mre     = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/consensusTreeMRE.newick"
     params:
-        prefix  = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/ml_trees"
+        prefix  = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/ml_trees"
     threads:
         get_highest_override( "raxmlng", "threads" )
     log:
-        mr      = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/mr.log",
-        mre     = "{outdir}/result/{sample}/{aligner}/raxml-ng/tree/mre.log"
+        mr      = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/mr.log",
+        mre     = "{outdir}/result/{sample}/{aligner}/{trimmer}/raxml-ng/tree/mre.log"
     conda:
         "../envs/raxml-ng.yaml"
     shell:

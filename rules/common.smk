@@ -77,6 +77,10 @@ def get_accessions( wildcards ):
         util.fail("Somehow 'get_accessions' was called with a non-csv file? path: '{}'".format(path))
     return path
 
+def relative_input_path( wildcards, input, output ):
+    """Returns the relative path to the input file, from the directory of the output file/directory"""
+    return os.path.relpath( str(input), os.path.dirname( str(output) ) )
+
 # =================================================================================================
 #     Config Related Functions
 # =================================================================================================
