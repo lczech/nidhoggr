@@ -6,10 +6,26 @@
 #     MSA trimming
 # =================================================================================================
 
+# trim ends that is always called before trimming occurs
+rule clean_alignment:
+    input:
+        "{outdir}/result/{sample}/{aligner}/aligned.afa"
+    params:
+        datatype    = config["settings"]["datatype"],
+        n           = config["params"]["trim_ends_n"]
+    output:
+        "{outdir}/result/{sample}/{aligner}/cleaned.afa"
+    log:
+        "{outdir}/result/{sample}/{aligner}/clean.log"
+    conda:
+        "../envs/biopython.yaml"
+    script:
+        "scripts/trim_ends.py"
+
 # special rule that skips trimming / does nothing
 rule trim_skipped:
     input:
-        "{outdir}/result/{sample}/{aligner}/aligned.afa"
+        "{outdir}/result/{sample}/{aligner}/cleaned.afa"
     params:
         rel_input = relative_input_path,
     output:
@@ -21,7 +37,7 @@ rule trim_skipped:
 
 rule trim_gblocks:
     input:
-        "{outdir}/result/{sample}/{aligner}/aligned.afa"
+        "{outdir}/result/{sample}/{aligner}/cleaned.afa"
     params:
         datatype    = ('p' if config["settings"]["datatype"] == 'aa' else 'd'),
         rel_input   = relative_input_path,
@@ -39,7 +55,7 @@ rule trim_gblocks:
 
 rule trim_trimal:
     input:
-        "{outdir}/result/{sample}/{aligner}/aligned.afa"
+        "{outdir}/result/{sample}/{aligner}/cleaned.afa"
     params:
         extra = config["params"]["trimal"]["extra"]
     output:

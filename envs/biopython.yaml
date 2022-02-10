@@ -1,0 +1,7 @@
+# Used by rules in align.smk
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - biopython ==1.79

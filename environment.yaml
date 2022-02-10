@@ -1,0 +1,8 @@
+name: nidhoggr
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - snakemake ==6.15.5
+  - pandas ==1.4.0

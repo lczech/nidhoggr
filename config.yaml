@@ -77,6 +77,10 @@ params:
   #     Alignment-specific settings
   # ----------------------------------------------------------------------
 
+  # trim leading/trailing columns that contain fewer than n non-gap characters
+  # (meaning a value of 0 disables the trimming)
+  trim_ends_n: 4
+
   # ======================================================================
   #     Tool specific settings
   # ======================================================================
